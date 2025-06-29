@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diyako Game Center</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom fonts for Rick and Morty theme */
+        @import url('https://fonts.googleapis.com/css2?family=Creepster&family=Press+Start+2P&family=Inter:wght@300;400;600;700&display=swap');
+        /*
+         * Creepster for main titles (a bit spooky/sci-fi)
+         * Press Start 2P for small accents (pixelated, arcade feel)
+         * Inter for general body text (still readable)
+        */
+
+        body {
+            font-family: 'Inter', sans-serif;
+            color: #d1f46f; /* Rick's portal green / bright accent */
+            line-height: 1.6;
+            scroll-behavior: smooth; /* Smooth scrolling for nav links */
+            background-color: #0b0c10; /* Fallback for very dark blue-black */
+
+            /* Starry Night background */
+            background-image: url('images/background/starry_night_blur.jpg'); /* Local background image */
+            background-size: cover;
+            background-attachment: fixed;
+            background-position: center;
+            position: relative; /* Needed for pseudo-element overlay */
+            min-height: 100vh; /* Ensure body covers full viewport for background */
+        }
+
+        /* Overlay for blurring and darkening the background image */
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(11, 12, 16, 0.85); /* Dark overlay */
+            backdrop-filter: blur(8px); /* Blur effect */
+            z-index: -1; /* Place behind content */
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1.5rem;
+            position: relative; /* Ensure content is above the overlay */
+            z-index: 1;
+        }
+        .card {
+            background-color: rgba(31, 40, 51, 0.9); /* Slightly transparent dark bluish-grey */
+            border-radius: 0.75rem; /* rounded-xl */
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.4); /* Deeper shadow */
+            overflow: hidden;
+            transition: transform 0.2s ease-in-out;
+            border: 1px solid #4a90e2; /* Subtle light blue border, like a portal */
+        }
+        .card:hover {
+            transform: translateY(-8px) scale(1.02); /* More pronounced hover effect */
+            box-shadow: 0 15px 20px -5px rgba(0, 0, 0, 0.7), 0 6px 8px -3px rgba(0, 0, 0, 0.5);
+        }
+        .console-header {
+            background-color: #6d28d9; /* Deep Purple, like portal goo */
+            background-image: linear-gradient(to right, #6d28d9, #4a90e2); /* Purple to blue gradient */
+            color: #ffffff;
+            padding: 1rem 1.5rem;
+            border-top-left-radius: 0.75rem;
+            border-top-right-radius: 0.75rem;
+            font-family: 'Press Start 2P', cursive; /* Quirky arcade font */
+            font-size: 1.4rem; /* Slightly larger console header */
+            font-weight: 400;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6); /* More pronounced text shadow */
+            letter-spacing: 0.07em; /* More letter spacing */
+        }
+        .game-list {
+            padding: 1.5rem;
+        }
+        .game-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+            background-color: rgba(43, 58, 74, 0.8); /* Slightly lighter transparent card dark blue */
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            border: 1px solid #3c4a5f; /* Darker border */
+            transition: background-color 0.1s ease-in-out, transform 0.1s ease-in-out;
+        }
+        .game-item:hover {
+            background-color: rgba(59, 77, 97, 0.9); /* Slightly darker on hover */
+            transform: translateX(5px); /* Slide effect on hover */
+        }
+        .game-cover {
+            width: 80px; /* Fixed width for covers */
+            height: 100px; /* Fixed height for covers */
+            border-radius: 0.5rem;
+            object-fit: cover;
+            margin-right: 1rem;
+            border: 2px solid #d1f46f; /* Green border for covers */
+            box-shadow: 0 0 8px rgba(209, 244, 111, 0.6); /* Glow effect */
+        }
+        .game-info {
+            flex-grow: 1;
+        }
+        .game-name {
+            font-weight: 600;
+            font-size: 1.125rem;
+            color: #e0f2f7; /* Off-white for game names */
+        }
+        .player-count {
+            font-size: 0.875rem;
+            color: #a0aec0; /* Lighter slate */
+            margin-top: 0.25rem;
+            display: flex;
+            align-items: center;
+        }
+        .player-icon-svg {
+            display: inline-block;
+            width: 1.2em; /* Slightly larger icon */
+            height: 1.2em; /* Slightly larger icon */
+            vertical-align: -0.15em; /* Adjust for vertical alignment with text */
+            fill: #d1f46f; /* Green for icons */
+            margin-right: 0.4rem; /* More spacing */
+            stroke: #d1f46f; /* Ensure stroke is also green for outlines */
+            stroke-width: 1.5; /* Slightly thicker stroke for better visibility */
+        }
+        .navbar {
+            background-color: rgba(11, 12, 16, 0.9); /* Semi-transparent, same as body base */
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            padding: 1rem 0; /* Initial larger padding */
+            border-bottom: 2px solid #4a90e2; /* Thicker blue border */
+            box-shadow: 0 2px 10px rgba(0,0,0,0.5); /* More pronounced shadow */
+            border-radius: 0.5rem; /* Rounded corners for the navbar itself */
+            margin-bottom: 2rem; /* More space below navbar */
+            transition: padding 0.3s ease-in-out, font-size 0.3s ease-in-out, box-shadow 0.3s ease-in-out; /* Smooth transition for resizing */
+        }
+        .navbar.navbar-scrolled {
+            padding: 0.5rem 0; /* Smaller padding when scrolled */
+            box-shadow: 0 2px 5px rgba(0,0,0,0.7); /* Smaller shadow when scrolled */
+        }
+        .navbar-links {
+            display: grid; /* Use grid for two columns */
+            grid-template-columns: repeat(2, 1fr); /* Always two equal columns */
+            gap: 1rem; /* Space between grid items */
+            justify-items: center; /* Center items within their grid cells */
+            width: 100%; /* Ensure it takes full width of container */
+        }
+        .navbar a {
+            color: #ffffff; /* White link text */
+            padding: 0.6rem 1.2rem; /* Initial bigger padding for larger links */
+            border-radius: 0.5rem; /* Slightly more rounded */
+            transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out, transform 0.1s ease-in-out, padding 0.3s ease-in-out, font-size 0.3s ease-in-out; /* Add padding and font-size to transition */
+            font-weight: 500;
+            text-transform: uppercase;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.9rem; /* Initial bigger font size */
+            letter-spacing: 0.05em; /* More letter spacing */
+            text-align: center; /* Ensure text is centered within the link */
+        }
+        .navbar.navbar-scrolled a {
+            padding: 0.4rem 0.8rem; /* Smaller padding for links when scrolled */
+            font-size: 0.8rem; /* Smaller font size when scrolled */
+        }
+        .navbar a:hover {
+            background-color: #d1f46f; /* Portal green on hover */
+            color: #1a202c; /* Dark text on hover */
+            transform: scale(1.08); /* More pronounced bounce */
+            box-shadow: 0 0 12px rgba(209, 244, 111, 0.9); /* Brighter glow effect on hover */
+        }
+        .social-info-card {
+            background-color: rgba(31, 40, 51, 0.9); /* Slightly transparent dark bluish-grey */
+            border-radius: 0.75rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.4);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            color: #e0f2f7; /* Off-white */
+            border: 1px solid #4a90e2; /* Subtle light blue border */
+            
+            display: flex;
+            flex-direction: column; /* Stack items vertically */
+            align-items: center; /* Center horizontally */
+        }
+        .social-info-card h2 {
+            font-family: 'Creepster', cursive; /* Creepster font for main titles */
+            font-size: 2.5rem; /* Slightly larger */
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: #d1f46f; /* Portal green for heading */
+            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.8); /* More pronounced shadow */
+        }
+        .social-item { /* Styles for each social/contact line item */
+            display: flex; /* Keep icon and text on same line within its item */
+            align-items: center;
+            justify-content: center; /* Center content within each line */
+            margin-bottom: 0.5rem; /* Spacing between lines */
+            font-size: 1.15rem; /* Consistent text size */
+            width: 100%; /* Ensure each item takes full width to force new line */
+        }
+        .social-info-card .social-icon {
+            width: 1.2em; /* Smaller icons as requested */
+            height: 1.2em; /* Smaller icons as requested */
+            margin-right: 0.5rem; /* Space between icon and text */
+            vertical-align: -0.15em; /* Adjust alignment */
+            /* Removed fill/stroke properties here, let them inherit from parent .social-item or be defined in .png source */
+        }
+
+        /* Header styling */
+        header h1 {
+            font-family: 'Creepster', cursive;
+            color: #d1f46f; /* Portal green */
+            text-shadow: 5px 5px 10px rgba(0, 0, 0, 0.9); /* Stronger shadow */
+            font-size: 4rem; /* Even larger main title */
+        }
+        header p {
+            color: #a0aec0; /* Lighter gray for descriptions */
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            header h1 {
+                font-size: 2.8rem;
+            }
+            /* Navbar is now always 2 columns, so removed flex-direction: column */
+            .navbar-links {
+                grid-template-columns: repeat(2, 1fr); /* Explicitly keep 2 columns */
+                gap: 0.75rem; /* Adjust gap for mobile */
+            }
+            .navbar a {
+                font-size: 0.8rem;
+                padding: 0.5rem 0.8rem;
+            }
+            .grid {
+                grid-template-columns: 1fr;
+            }
+            .console-header {
+                font-size: 1.2rem;
+            }
+            .game-name {
+                font-size: 1.05rem;
+            }
+            .game-cover {
+                width: 60px;
+                height: 75px;
+            }
+            /* Social items already stack by default with flex-direction: column on parent */
+            .social-info-card h2 {
+                font-size: 2rem;
+            }
+            .social-item {
+                font-size: 1.05rem;
+                margin-bottom: 0.4rem; /* Adjust spacing for mobile */
+            }
+            .social-info-card .social-icon {
+                width: 1em; /* Smaller icons on mobile */
+                height: 1em; /* Smaller icons on mobile */
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container py-8">
+        <header class="text-center mb-10">
+            <h1>Diyako Game Center</h1>
+            <p class="text-lg text-gray-300">Wubba lubba dub dub! Prepare for multi-dimensional gaming experiences!</p>
+        </header>
+
+        <!-- Navbar for console navigation -->
+        <nav id="main-navbar" class="navbar rounded-lg mb-8">
+            <div class="container flex justify-center gap-4 flex-wrap navbar-links">
+                <a href="#ps5-1-section">[PS5 - Console 1]</a>
+                <a href="#ps5-2-section">[PS5 - Console 2]</a>
+                <a href="#ps4-3-section">[PS4 - Console 3]</a>
+                <a href="#ps4-4-section">[PS4 - Console 4]</a>
+            </div>
+        </nav>
+
+        <!-- Social and Contact Information -->
+        <section class="social-info-card mb-12">
+            <h2>Get Schwifty with Diyako Game Center!</h2>
+            
+            <div class="social-item">
+                <img class="social-icon" src="images/icons/instagram.png" alt="Instagram Icon" onerror="this.onerror=null;this.src='https://placehold.co/1.2emx1.2em/334155/d1f46f?text=IG';">
+                <span class="font-semibold text-purple-300">Diyako013</span>
+            </div>
+            <div class="social-item">
+                <img class="social-icon" src="images/icons/youtube.png" alt="YouTube Icon" onerror="this.onerror=null;this.src='https://placehold.co/1.2emx1.2em/334155/d1f46f?text=YT';">
+                <span class="font-semibold text-purple-300">Diyako013</span>
+            </div>
+            <div class="social-item">
+                <img class="social-icon" src="images/icons/telegram.png" alt="Telegram Icon" onerror="this.onerror=null;this.src='https://placehold.co/1.2emx1.2em/334155/d1f46f?text=TG';">
+                <span class="font-semibold text-purple-300">Diyako013</span>
+            </div>
+            <div class="social-item">
+                <img class="social-icon" src="images/icons/phone.png" alt="Phone Icon" onerror="this.onerror=null;this.src='https://placehold.co/1.2emx1.2em/334155/d1f46f?text=PH';">
+                <span class="font-semibold text-purple-300">09114704821</span>
+            </div>
+            <div class="social-item">
+                <img class="social-icon" src="images/icons/location.png" alt="Location Icon" onerror="this.onerror=null;this.src='https://placehold.co/1.2emx1.2em/334155/d1f46f?text=LOC';">
+                <span class="font-semibold text-purple-300">منظریه، کوچه ولیعصر</span>
+            </div>
+        </section>
+
+        <div id="game-consoles" class="grid grid-cols-1 gap-8">
+            <!-- Console sections will be dynamically loaded here -->
+        </div>
+    </div>
+
+    <script>
+        // Define game data - Consoles reordered and renamed as requested
+        const consoles = [
+            {
+                id: 'ps5-1',
+                name: 'PS5 - Console 1',
+                games: [
+                    { name: 'Ghost of Tsushima', players: '1 Player', cover: 'Ghost_of_Tsushima.jpg' },
+                    { name: 'FC25', players: '1-2+ Players', cover: 'FC25.jpg' },
+                    { name: 'Assassin\'s Creed Mirage', players: '1 Player', cover: 'Assassins_Creed_Mirage.jpg' },
+                    { name: 'It Takes Two', players: '2 Players (Co-op)', cover: 'It_Takes_Two.jpg' },
+                    { name: 'Minecraft', players: '1-2+ Players', cover: 'Minecraft.jpg' },
+                    { name: 'eFootball 2025', players: '1-2+ Players', cover: 'eFootball_2025.jpg' },
+                    { name: 'NBA 2K25', players: '1-2+ Players', cover: 'NBA_2K25.jpg' },
+                    { name: 'Crash Team Racing Nitro-Fueled', players: '2+ Players', cover: 'Crash_Team_Racing_Nitro-Fueled_PS5.jpg' },
+                    { name: 'Splite Fiction (Splitgate)', players: '2+ Players', cover: 'Splite_Fiction.jpg' },
+                    { name: 'The Last of Us Part I', players: '1 Player', cover: 'The_Last_of_Us_Part_I.jpg' },
+                ]
+            },
+            {
+                id: 'ps5-2',
+                name: 'PS5 - Console 2',
+                games: [
+                    { name: 'Call of Duty Warzone Season 1', players: '2+ Players', cover: 'Call_of_Duty_Warzone_Season_1.jpg' },
+                    { name: "Marvel's Spider-Man 2", players: '1 Player', cover: 'Marvels_Spider-Man_2.jpg' },
+                    { name: 'Rise of the Ronin', players: '1 Player', cover: 'Rise_of_the_Ronin.jpg' },
+                    { name: 'Crash Team Racing Nitro-Fueled', players: '2+ Players', cover: 'Crash_Team_Racing_Nitro-Fueled.jpg' },
+                    { name: 'Tekken 8', players: '1-2 Players', cover: 'Tekken_8.jpg' },
+                    { name: 'FC24', players: '1-2+ Players', cover: 'FC24.jpg' },
+                    { name: "Dragon's Dogma 2", players: '1 Player', cover: 'Dragons_Dogma_2.jpg' },
+                ]
+            },
+            {
+                id: 'ps4-3', /* Changed ID */
+                name: 'PS4 - Console 3', /* Changed Name */
+                games: [
+                    { name: 'Battlefield 1', players: '1-2+ Players', cover: 'Battlefield_1.jpg' },
+                    { name: 'Grand Theft Auto V', players: '1-2+ Players', cover: 'Grand_Theft_Auto_V_PS4.jpg' },
+                    { name: 'Call of Duty Modern Warfare II', players: '1-2+ Players', cover: 'Call_of_Duty_Modern_Warfare_II.jpg' },
+                    { name: 'Crash Team Racing Nitro-Fueled', players: '2+ Players', cover: 'Crash_Team_Racing_Nitro-Fueled_PS4.jpg' },
+                    { name: 'Street of Rage 4', players: '1-2 Players', cover: 'Street_of_Rage_4.jpg' },
+                    { name: 'Resident Evil 4', players: '1 Player', cover: 'Resident_Evil_4.jpg' },
+                    { name: 'eFootball PES 2021 Season Update', players: '1-2+ Players', cover: 'eFootball_PES_2021_Season_Update.jpg' },
+                    { name: 'Red Dead Redemption 2', players: '1-2+ Players', cover: 'Red_Dead_Redemption_2.jpg' },
+                    { name: 'The Last of Us Part II', players: '1 Player', cover: 'The_Last_of_Us_Part_II.jpg' },
+                    { name: 'Minecraft: PlayStation 4 Edition', players: '1-2+ Players', cover: 'Minecraft_PS4_Edition.jpg' },
+                    { name: 'Mortal Kombat 11', players: '1-2 Players', cover: 'Mortal_Kombat_11.jpg' },
+                    { name: 'Need for Speed Heat', players: '1-2+ Players', cover: 'Need_for_Speed_Heat.jpg' },
+                    { name: 'God of War', players: '1 Player', cover: 'God_of_War.jpg' },
+                ]
+            },
+            {
+                id: 'ps4-4', /* Changed ID */
+                name: 'PS4 - Console 4', /* Changed Name */
+                games: [
+                    { name: 'A Way Out', players: '2 Players (Co-op)', cover: 'A_Way_Out.jpg' },
+                    { name: 'Call of Duty Black Ops 6', players: '1-2+ Players', cover: 'Call_of_Duty_Black_Ops_6.jpg' },
+                    { name: 'Crash Team Racing Nitro-Fueled', players: '2+ Players', cover: 'Crash_Team_Racing_Nitro-Fueled_LG.jpg' },
+                    { name: 'Need for Speed Heat', players: '1-2+ Players', cover: 'Need_for_Speed_Heat_LG.jpg' },
+                    { name: 'Mortal Kombat 11', players: '1-2 Players', cover: 'Mortal_Kombat_11_LG.jpg' },
+                    { name: 'It Takes Two', players: '2 Players (Co-op)', cover: 'It_Takes_Two_LG.jpg' },
+                    { name: 'Grand Theft Auto V', players: '1-2+ Players', cover: 'Grand_Theft_Auto_V_LG.jpg' },
+                    { name: 'God of War', players: '1 Player', cover: 'God_of_War_LG.jpg' },
+                    { name: 'Ghost of Tsushima', players: '1 Player', cover: 'Ghost_of_Tsushima_LG.jpg' },
+                    { name: 'EA Sports FC 25', players: '1-2+ Players', cover: 'EA_Sports_FC_25.jpg' },
+                    { name: 'eFootball PES 2021 Season Update', players: '1-2+ Players', cover: 'eFootball_PES_2021_Season_Update_LG.jpg' },
+                    { name: 'Sniper Elite 5', players: '1 Player', cover: 'Sniper_Elite_5.jpg' },
+                    { name: 'Street of Rage 4', players: '1-2 Players', cover: 'Street_of_Rage_4_LG.jpg' },
+                    { name: 'Tekken 7', players: '1-2 Players', cover: 'Tekken_7.jpg' },
+                    { name: 'EA Sports UFC 4', players: '1-2 Players', cover: 'EA_Sports_UFC_4.jpg' },
+                    { name: 'WWE 2K23', players: '1-2+ Players', cover: 'WWE_K23.jpg' },
+                ]
+            }
+        ];
+
+        // Function to get player icon as SVG
+        function getPlayerIconSvg(playerText) {
+            let svgPath = '';
+            // Icons adapted from simple, clear designs that fit the theme
+            if (playerText.includes('1 Player')) {
+                // Single person icon (simple silhouette)
+                svgPath = '<path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"></path>';
+            } else if (playerText.includes('2 Players')) {
+                // Two people icon (simple silhouettes, slightly overlapping)
+                svgPath = '<path d="M16.5 12c1.93 0 3.5-1.57 3.5-3.5S18.43 5 16.5 5 13 6.57 13 8.5s1.57 3.5 3.5 3.5zm-9 0c1.93 0 3.5-1.57 3.5-3.5S9.43 5 7.5 5 4 6.57 4 8.5 5.57 12 7.5 12zM2 19c0-2.66 5.33-4 8-4h.5c.27.28.58.52.9.72.32.2.68.35 1.05.43.37.08.75.12 1.13.12H13c2.67 0 8 1.34 8 4v2H2v-2z"></path>';
+            } else if (playerText.includes('2+ Players')) {
+                // Three people icon (more generalized group, not specific to 3)
+                // This icon represents a group, suitable for 2+ players
+                svgPath = '<path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.6-.02-.89-.06.74.83 1.48 1.67 1.48 3.56V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"></path>';
+            }
+            return `<svg class="player-icon-svg" viewBox="0 0 24 24">${svgPath}</svg>`;
+        }
+
+
+        // Dynamically load content and handle navbar scroll
+        window.onload = function() {
+            const gameConsolesDiv = document.getElementById('game-consoles');
+            const mainNavbar = document.getElementById('main-navbar');
+            const scrollThreshold = 100; // Pixels to scroll before navbar shrinks
+
+            // Function to handle scroll event
+            function handleScroll() {
+                if (window.scrollY > scrollThreshold) {
+                    mainNavbar.classList.add('navbar-scrolled');
+                } else {
+                    mainNavbar.classList.remove('navbar-scrolled');
+                }
+            }
+
+            // Attach scroll event listener
+            window.addEventListener('scroll', handleScroll);
+
+            // Initial check in case page loads already scrolled
+            handleScroll();
+
+            consoles.forEach(consoleData => {
+                // Each console gets its own section
+                const consoleSection = document.createElement('section');
+                consoleSection.id = `${consoleData.id}-section`; // Unique ID for navigation
+                consoleSection.className = 'card mb-8'; // Apply card styling and margin bottom
+
+                const consoleHeader = document.createElement('div');
+                consoleHeader.className = 'console-header';
+                consoleHeader.textContent = consoleData.name;
+                consoleSection.appendChild(consoleHeader);
+
+                const gameListDiv = document.createElement('div');
+                gameListDiv.className = 'game-list';
+
+                consoleData.games.forEach((game, index) => {
+                    const gameItem = document.createElement('div');
+                    gameItem.className = 'game-item';
+
+                    const coverImage = document.createElement('img');
+                    // Local image path for game covers
+                    coverImage.src = `images/game_covers/${game.cover}`;
+                    coverImage.alt = `${game.name} Cover`;
+                    coverImage.className = 'game-cover';
+                    // Fallback in case image fails to load
+                    coverImage.onerror = function() {
+                        this.src = `https://placehold.co/80x100/334155/d1f46f?text=No+Image`;
+                    };
+                    gameItem.appendChild(coverImage);
+
+                    const gameInfo = document.createElement('div');
+                    gameInfo.className = 'game-info';
+
+                    const gameName = document.createElement('div');
+                    gameName.className = 'game-name';
+                    gameName.textContent = `${index + 1}. ${game.name}`;
+                    gameInfo.appendChild(gameName);
+
+                    const playerCount = document.createElement('div');
+                    playerCount.className = 'player-count';
+                    playerCount.innerHTML = getPlayerIconSvg(game.players) + game.players; // Inject SVG and text
+                    gameInfo.appendChild(playerCount);
+
+                    gameItem.appendChild(gameInfo);
+                    gameListDiv.appendChild(gameItem);
+                });
+
+                consoleSection.appendChild(gameListDiv);
+                gameConsolesDiv.appendChild(consoleSection); // Append the section to the main container
+            });
+        };
+    </script>
+</body>
+</html>
