@@ -203,7 +203,9 @@
             justify-content: center; /* Center content within each line */
             margin-bottom: 0.5rem; /* Spacing between lines */
             font-size: 1.15rem; /* Consistent text size */
-            width: 100%; /* Ensure each item takes full width to force new line */
+            /* Ensure this takes full width to force a new line, even in flex containers */
+            width: 100%; 
+            max-width: 300px; /* Optional: limit max width to keep text from spreading too wide on very large screens */
         }
         .social-info-card .social-icon {
             width: 1.2em; /* Smaller icons as requested */
@@ -261,6 +263,7 @@
             .social-item {
                 font-size: 1.05rem;
                 margin-bottom: 0.4rem; /* Adjust spacing for mobile */
+                max-width: 100%; /* Ensure full width on mobile */
             }
             .social-info-card .social-icon {
                 width: 1em; /* Smaller icons on mobile */
@@ -273,7 +276,8 @@
     <div class="container py-8">
         <header class="text-center mb-10">
             <h1>Diyako Game Center</h1>
-            <p class="text-lg text-gray-300">Wubba lubba dub dub! Prepare for multi-dimensional gaming experiences!</p>
+            <p class="text-lg text-gray-300">Wubba lubba dub dub!</p>
+            <p class="text-lg text-gray-300">Prepare for multi-dimensional gaming experiences!</p>
         </header>
 
         <!-- Navbar for console navigation -->
