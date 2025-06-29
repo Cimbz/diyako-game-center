@@ -29,6 +29,7 @@
             background-position: center;
             position: relative; /* Needed for pseudo-element overlay */
             min-height: 100vh; /* Ensure body covers full viewport for background */
+            padding-top: 100px; /* Default padding for desktop, adjusted for mobile */
         }
 
         /* Overlay for blurring and darkening the background image */
@@ -50,6 +51,7 @@
             padding: 1.5rem;
             position: relative; /* Ensure content is above the overlay */
             z-index: 1;
+            /* No padding-top here, it's on the body now */
         }
         .card {
             background-color: rgba(31, 40, 51, 0.9); /* Slightly transparent dark bluish-grey */
@@ -132,26 +134,28 @@
         }
         .navbar {
             background-color: rgba(11, 12, 16, 0.9); /* Semi-transparent, same as body base */
-            position: sticky;
+            position: fixed; /* Changed to fixed to be completely out of flow */
             top: 0;
+            left: 0;
+            right: 0;
             z-index: 100;
             padding: 1rem 0; /* Initial larger padding */
             border-bottom: 2px solid #4a90e2; /* Thicker blue border */
             box-shadow: 0 2px 10px rgba(0,0,0,0.5); /* More pronounced shadow */
             border-radius: 0.5rem; /* Rounded corners for the navbar itself */
-            margin-bottom: 2rem; /* More space below navbar */
             transition: padding 0.3s ease-in-out, font-size 0.3s ease-in-out, box-shadow 0.3s ease-in-out; /* Smooth transition for resizing */
         }
         .navbar.navbar-scrolled {
             padding: 0.5rem 0; /* Smaller padding when scrolled */
             box-shadow: 0 2px 5px rgba(0,0,0,0.7); /* Smaller shadow when scrolled */
         }
+        /* Default: 2 columns */
         .navbar-links {
-            display: grid; /* Use grid for two columns */
-            grid-template-columns: repeat(2, 1fr); /* Always two equal columns */
-            gap: 1rem; /* Space between grid items */
-            justify-items: center; /* Center items within their grid cells */
-            width: 100%; /* Ensure it takes full width of container */
+            display: grid; 
+            grid-template-columns: repeat(2, 1fr); 
+            gap: 1rem; 
+            justify-items: center; 
+            width: 100%; 
         }
         .navbar a {
             color: #ffffff; /* White link text */
@@ -165,9 +169,25 @@
             letter-spacing: 0.05em; /* More letter spacing */
             text-align: center; /* Ensure text is centered within the link */
         }
+        /* When scrolled, switch to flexbox to force single line and compact it */
+        .navbar.navbar-scrolled .navbar-links {
+            display: flex; /* Use flexbox for single row */
+            flex-wrap: nowrap; /* Force all items onto one line */
+            justify-content: space-around; /* Distribute items evenly */
+            gap: 0.1rem; /* Minimal gap between items */
+            overflow-x: auto; /* Allow horizontal scrolling if items are too wide */
+            -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+            padding: 0 0.5rem; /* Small padding on sides for scrolled state */
+        }
         .navbar.navbar-scrolled a {
-            padding: 0.4rem 0.8rem; /* Smaller padding for links when scrolled */
-            font-size: 0.8rem; /* Smaller font size when scrolled */
+            flex-shrink: 0; /* Prevent items from shrinking too much */
+            padding: 0.2rem 0.2rem; /* Even smaller padding for links when scrolled */
+            font-size: 0.6rem; /* Even smaller font size when scrolled */
+            letter-spacing: 0; /* Remove letter spacing when compact */
+            white-space: nowrap; /* Ensure text stays on one line */
+            text-overflow: ellipsis; /* Add ellipsis if text is too long */
+            overflow: hidden; /* Hide overflow content */
+            min-width: 0; /* Allow shrinking without breaking */
         }
         .navbar a:hover {
             background-color: #d1f46f; /* Portal green on hover */
@@ -203,8 +223,7 @@
             justify-content: center; /* Center content within each line */
             margin-bottom: 0.5rem; /* Spacing between lines */
             font-size: 1.15rem; /* Consistent text size */
-            /* Ensure this takes full width to force a new line, even in flex containers */
-            width: 100%; 
+            width: 100%; /* Ensure each item takes full width to force new line */
             max-width: 300px; /* Optional: limit max width to keep text from spreading too wide on very large screens */
         }
         .social-info-card .social-icon {
@@ -228,20 +247,25 @@
 
         /* Responsive adjustments */
         @media (max-width: 768px) {
+            body {
+                padding-top: 80px; /* Adjusted padding-top for mobile to account for smaller navbar */
+            }
             .container {
                 padding: 1rem;
             }
             header h1 {
                 font-size: 2.8rem;
             }
-            /* Navbar is now always 2 columns, so removed flex-direction: column */
+            .navbar {
+                padding: 0.75rem 0; /* Slightly smaller padding for mobile navbar */
+            }
             .navbar-links {
-                grid-template-columns: repeat(2, 1fr); /* Explicitly keep 2 columns */
+                grid-template-columns: repeat(2, 1fr); /* Explicitly keep 2 columns on mobile by default */
                 gap: 0.75rem; /* Adjust gap for mobile */
             }
             .navbar a {
-                font-size: 0.8rem;
-                padding: 0.5rem 0.8rem;
+                font-size: 0.75rem; /* Slightly smaller font for mobile links */
+                padding: 0.4rem 0.6rem; /* Smaller padding for mobile links */
             }
             .grid {
                 grid-template-columns: 1fr;
@@ -256,7 +280,6 @@
                 width: 60px;
                 height: 75px;
             }
-            /* Social items already stack by default with flex-direction: column on parent */
             .social-info-card h2 {
                 font-size: 2rem;
             }
@@ -269,6 +292,23 @@
                 width: 1em; /* Smaller icons on mobile */
                 height: 1em; /* Smaller icons on mobile */
             }
+            /* When scrolled on mobile, force 4 columns if possible */
+            .navbar.navbar-scrolled .navbar-links {
+                display: flex; /* Use flexbox for single row on mobile when scrolled */
+                flex-wrap: nowrap; /* Force single line */
+                justify-content: space-around;
+                gap: 0.1rem; /* Minimal gap */
+                overflow-x: auto; /* Allow horizontal scrolling if absolutely necessary */
+                -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+                padding: 0 0.2rem; /* Very minimal padding on sides */
+            }
+            .navbar.navbar-scrolled a {
+                flex-shrink: 0; /* Prevent items from shrinking too much */
+                padding: 0.1rem 0.1rem; /* Minimal padding */
+                font-size: 0.45rem; /* Even smaller font */
+                letter-spacing: 0;
+                min-width: 0; /* Allows content to shrink */
+            }
         }
     </style>
 </head>
@@ -276,8 +316,7 @@
     <div class="container py-8">
         <header class="text-center mb-10">
             <h1>Diyako Game Center</h1>
-            <p class="text-lg text-gray-300">Wubba lubba dub dub!</p>
-            <p class="text-lg text-gray-300">Prepare for multi-dimensional gaming experiences!</p>
+            <p class="text-lg text-gray-300">Wubba lubba dub dub! Prepare for multi-dimensional gaming experiences!</p>
         </header>
 
         <!-- Navbar for console navigation -->
@@ -323,7 +362,7 @@
 
     <script>
         // Define game data - Consoles reordered and renamed as requested
-        const consoles = [
+        var consoles = [
             {
                 id: 'ps5-1',
                 name: 'PS5 - Console 1',
